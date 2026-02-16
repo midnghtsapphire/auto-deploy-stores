@@ -1,0 +1,2 @@
+[console_scripts]
+autodeploy = cli.main:cli

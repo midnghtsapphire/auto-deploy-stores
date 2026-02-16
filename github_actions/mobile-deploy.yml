@@ -1,0 +1,83 @@
+name: Mobile Auto-Deploy
+
+on:
+  workflow_call:
+    inputs:
+      app_name:
+        required: true
+        type: string
+      bundle_id:
+        required: true
+        type: string
+      platform:
+        required: false
+        type: string
+        default: 'both'
+      eas_profile:
+        required: false
+        type: string
+        default: 'production'
+    secrets:
+      EXPO_TOKEN:
+        required: true
+      APPLE_API_KEY_ID:
+        required: false
+      APPLE_API_KEY_ISSUER_ID:
+        required: false
+      APPLE_API_KEY_P8:
+        required: false
+      GOOGLE_SERVICE_ACCOUNT_JSON:
+        required: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          npm install -g expo-cli eas-cli
+          pip install .
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Configure Credentials
+        run: |
+          mkdir -p credentials
+          if [ -n "${{ secrets.APPLE_API_KEY_P8 }}" ]; then
+            echo "${{ secrets.APPLE_API_KEY_P8 }}" > credentials/apple-key.p8
+            autodeploy credentials add apple_api_key apple_api_key \
+              --value "{\"key_id\":\"${{ secrets.APPLE_API_KEY_ID }}\",\"issuer_id\":\"${{ secrets.APPLE_API_KEY_ISSUER_ID }}\",\"key_path\":\"credentials/apple-key.p8\"}"
+          fi
+          if [ -n "${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}" ]; then
+            echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > credentials/google-play-key.json
+            autodeploy credentials add google_service_account google_service_account \
+              --file credentials/google-play-key.json
+          fi
+
+      - name: Wrap Web App
+        run: |
+          autodeploy init --name "${{ inputs.app_name }}" --bundle-id "${{ inputs.bundle_id }}" --source "." --output "./mobile"
+          autodeploy wrap --mode webview
+
+      - name: Build and Submit
+        run: |
+          autodeploy deploy --target "${{ inputs.platform }}" --skip-wrap --track internal
