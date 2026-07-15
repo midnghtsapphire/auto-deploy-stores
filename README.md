@@ -1,5 +1,12 @@
 # Auto-Deploy Stores 🚀
 
+
+<!-- AUTO-PACKAGE-BADGES:START -->
+<!-- Auto-generated package badges -->
+
+![PyPI version](https://img.shields.io/pypi/v/auto-deploy-stores?style=flat-square&logo=pypi&color=green) ![PyPI downloads](https://img.shields.io/pypi/dm/auto-deploy-stores?style=flat-square&color=brightgreen) ![PyPI license](https://img.shields.io/pypi/l/auto-deploy-stores?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://pypi.org/project/auto-deploy-stores)
+
+<!-- AUTO-PACKAGE-BADGES:END -->
 A complete, production-ready auto-deploy pipeline that wraps React/Vite web apps into Expo/React Native mobile apps and deploys them to both **Apple App Store** and **Google Play Store**.
 
 Provided by free sources and APIs — **MIDNGHTSAPPHIRE / GlowStar Labs**.
